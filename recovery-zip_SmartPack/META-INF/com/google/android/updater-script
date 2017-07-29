@@ -1,8 +1,0 @@
-ui_print("");
-ui_print("Installing SmartPack Kernel for galaxy S4");
-
-ui_print("");
-ui_print("Flahing kernel...");
-package_extract_file("boot.img", "/dev/block/platform/dw_mmc.0/by-name/BOOT");
-ui_print("Installation Completed!");
-ui_print("Enjoy");

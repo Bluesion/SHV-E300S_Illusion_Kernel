@@ -73,8 +73,8 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
 
   echo \#define UTS_VERSION \"`echo $UTS_VERSION | $UTS_TRUNCATE`\"
 
-  echo \#define LINUX_COMPILE_BY \"SmartPack-Kernel-jalteskt-[sunilpaulmathew`echo $LINUX_COMPILE_BY | $UTS_TRUNCATE`gpillusion\"
-  echo \#define LINUX_COMPILE_HOST \"xda-developers.com]\"
+  echo \#define LINUX_COMPILE_BY \"illusion`echo $LINUX_COMPILE_BY | $UTS_TRUNCATE`illusion\"
+  echo \#define LINUX_COMPILE_HOST \"illusion\"
 
   echo \#define LINUX_COMPILER \"`$CC -v 2>&1 | tail -n 1`\"
 ) > .tmpcompile
