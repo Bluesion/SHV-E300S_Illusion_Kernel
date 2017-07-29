@@ -1,0 +1,23 @@
+#!/sbin/busybox sh
+BB=/sbin/busybox
+cat << CTAG
+{
+    name:"About",
+    elements:[
+    	{ SLiveLabel:{
+		refresh:10000000,
+		style:"bold",
+		action:"echo Welcome to ViRus kernel !"
+	}},
+    	{ SLiveLabel:{
+		refresh:10000000,
+		action:"echo Developed By"
+	}},
+    	{ SLiveLabel:{
+		refresh:10000000,
+		style:"bold",
+		action:"echo Vishal Thakar"
+	}}
+  ]
+}
+CTAG
