@@ -1134,11 +1134,11 @@ static struct exynos_tmu_platform_data const exynos5_default_tmu_data = {
 		.temp_level = 75,
 	},
 	.freq_tab[2] = {
-		.freq_clip_max = 1200 * 1000,
+		.freq_clip_max = 1000 * 1000,
 		.temp_level = 80,
 	},
 	.freq_tab[3] = {
-		.freq_clip_max = 800 * 1000,
+		.freq_clip_max = 600 * 1000,
 		.temp_level = 85,
 	},
 	.freq_tab[4] = {
