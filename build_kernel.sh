@@ -5,12 +5,12 @@ KERNEL_DIR=`pwd`
 KERNEL_MERGE_DIR=$KERNEL_DIR/repack_Illusion
 KERNEL_ZIP_DIR=$KERNEL_DIR/recovery-zip_Illusion
 KERNEL_RELEASE_DIR=$KERNEL_DIR/release_Illusion
+mkbootimg="$KERNEL_MERGE_DIR/mkbootimg"
 mkbootimg_args="--base 0x10000000 \
     --kernel_offset 0x00008000 \
     --ramdisk_offset 0x01000000 \
     --tags_offset 0x00000100 \
     --cmdline buildvariant=userdebug \
-    --board \
     --pagesize 2048"
 NUM_CPUS=""
 
