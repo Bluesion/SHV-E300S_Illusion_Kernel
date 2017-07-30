@@ -1,54 +1,61 @@
 #!/bin/bash
 
-echo -e $COLOR_GREEN"\n Illusion Kernel Build Script\n"$COLOR_NEUTRAL
-#
-echo -e $COLOR_GREEN"\n (c) sunilpaulmathew@xda-developers.com\n"$COLOR_NEUTRAL
+# Definitions
+KERNEL_DIR=`pwd`
+KERNEL_MERGE_DIR=$KERNEL_DIR/repack_Illusion
+KERNEL_ZIP_DIR=$KERNEL_DIR/recovery-zip_Illusion
+KERNEL_RELEASE_DIR=$KERNEL_DIR/release_Illusion
+mkbootimg_args="--base 0x10000000 \
+    --kernel_offset 0x00008000 \
+    --ramdisk_offset 0x01000000 \
+    --tags_offset 0x00000100 \
+    --cmdline buildvariant=userdebug \
+    --board \
+    --pagesize 2048"
+NUM_CPUS=""
 
-TOOLCHAIN="/home/illusion/toolchain/hyper/bin/arm-eabi-"
-ARCHITECTURE=arm
 
-NUM_CPUS=""   # number of cpu cores used for build (leave empty for auto detection)
+# Be ready for build
+echo -e $COLOR_GREEN"\n Preparing...\n"$COLOR_NEUTRAL
+mkdir release_Illusion
 
-export ARCH=$ARCHITECTURE
-export CROSS_COMPILE="${CCACHE} $TOOLCHAIN"
 
+# Build kernel
+echo -e $COLOR_GREEN"\n Start building kernel\n"$COLOR_NEUTRAL
+export ARCH=arm
+export CROSS_COMPILE=/home/illusion/toolchain/hyper/bin/arm-eabi-
 if [ -z "$NUM_CPUS" ]; then
 	NUM_CPUS=`grep -c ^processor /proc/cpuinfo`
 fi
+make illusion_defconfig && make -j$NUM_CPUS
 
-# creating backups
 
-cp scripts/mkcompile_h release_Illusion/
+# Move zImage to merge folder
+echo -e $COLOR_GREEN"\n Making zip file\n"$COLOR_NEUTRAL
+cp $KERNEL_DIR/arch/arm/boot/zImage $KERNEL_MERGE_DIR/kernel/boot.img-zImage
 
-# updating kernel name
 
-sed "s/\`echo \$LINUX_COMPILE_BY | \$UTS_TRUNCATE\`/illusion/g" -i scripts/mkcompile_h
-sed "s/\`echo \$LINUX_COMPILE_HOST | \$UTS_TRUNCATE\`/illusion/g" -i scripts/mkcompile_h
+# Merge kernel
+cd $KERNEL_MERGE_DIR
+$mkbootimg $mkbootimg_args \
+    --kernel $KERNEL_MERGE_DIR/kernel/boot.img-zImage \
+    --ramdisk $KERNEL_MERGE_DIR/kernel/boot.img-ramdisk.cpio.lzma \
+    -o $KERNEL_MERGE_DIR/new.img
 
-echo -e $COLOR_GREEN"\n Building Illusion Kernel for jalteskt\n"$COLOR_NEUTRAL
 
-mkdir output_Illusion
+# Move new.img to zip folder
+cp $KERNEL_MERGE_DIR/new.img $KERNEL_ZIP_DIR/boot.img
 
-make -C $(pwd) O=output_Illusion illusion_defconfig && make -j$NUM_CPUS -C $(pwd) O=output_Illusion
 
-echo -e $COLOR_GREEN"\n Copying zImage to generate boot.img\n"$COLOR_NEUTRAL
+# Zipping kernel
+cd $KERNEL_ZIP_DIR
+zip -r9 Illusion_kernel-LOS_jalteskt_$(date +"%Y%m%d").zip * && mv Illusion_* $KERNEL_RELEASE_DIR
 
-cp output_Illusion/arch/arm/boot/zImage jalte/skt/kernel
 
-echo -e $COLOR_GREEN"\n Generating boot.img\n"$COLOR_NEUTRAL
+# Cleaning
+echo -e $COLOR_GREEN"\n Cleaning directory\n"$COLOR_NEUTRAL
+cd .. && rm $KERNEL_MERGE_DIR/kernel/boot.img-zImage && rm $KERNEL_MERGE_DIR/new.img && rm $KERNEL_ZIP_DIR/boot.img
 
-cd jalte/ && perl mkboot skt/ ../recovery-zip_Illusion/boot.img
 
-echo -e $COLOR_GREEN"\n Making recovery flashable zip for LineageOS -jalteskt\n"$COLOR_NEUTRAL
-
-cd ../recovery-zip_Illusion/ && zip -r9 Illusion_kernel-LOS_jalteskt_beta_$(date +"%Y%m%d").zip * && mv Illusion_* ../release_Illusion/ && rm boot.img
-
-echo -e $COLOR_GREEN"\n Cleaning\n"$COLOR_NEUTRAL
-
-cd .. && rm jalte/skt/kernel
-
-# restoring backups
-
-mv release_Illusion/mkcompile_h scripts/
-
-echo -e $COLOR_GREEN"\n Everything done... please visit 'release_Illusion'\n"$COLOR_NEUTRAL
+# Complete!
+echo -e $COLOR_GREEN"\n Everything done. Your file will be at 'release_Illusion'\n"$COLOR_NEUTRAL
